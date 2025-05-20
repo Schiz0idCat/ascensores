@@ -1,3 +1,8 @@
+# leetTxt(path)
+# lee el txt con configuraciones del proyecto 
+#
+# Parámetros:
+#  - path (str): path del txt a leer 
 def leerTxt(path):
     with open(path, 'r') as f:
         # Leer los primeros 4 valores, cada uno en una línea
