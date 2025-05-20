@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# PyCharm
+.idea/
+
+# Entornos virtuales
+venv/
+.env/
+
+# Archivos temporales
+*.log
+*.tmp
+*.swp
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
