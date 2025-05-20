@@ -1,8 +1,9 @@
 import sys
 import pygame
+import random
 from config import colors
 from config.settings import FRAME, GRID, BUILDING
-from src import grid, building, elevator
+from src import grid, building, elevator, person
 
 
 if __name__ == "__main__":
@@ -41,6 +42,14 @@ if __name__ == "__main__":
         )
         ascensores.append(asc)
 
+    personas = []
+    personasPorCelda = {}
+    for i in range(10):
+        destino = random.randint(1, edificio["pisos"] - 1)  # pisos destino entre 1 y N-1
+        p = person.makePerson(destino, color=colors.rand())
+        p["pos"] = (i % 4, 0)  # columnas 0-3, piso 0
+        personas.append(p)
+
     # Bucle principal
     running = True
     while running:
@@ -55,6 +64,9 @@ if __name__ == "__main__":
         building.drawBuilding(screen, matriz["cellSize"], BUILDING["COORD"], edificio, colors.WHITE, BUILDING["THICKNESS"])
         for asc in ascensores:
             elevator.dibujar_ascensor(screen, asc, matriz["cellSize"], colors.RED, colors.GREEN)
+
+    for persona in personas:
+        person.drawPerson(screen, persona, matriz["cellSize"], persona["pos"], personasPorCelda, persona["color"])
 
         pygame.display.flip()
         clock.tick(FRAME["FPS"])
