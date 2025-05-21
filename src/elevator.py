@@ -61,6 +61,10 @@ def drawElevator(screen, ascensor, cellSize, color, colorDireccion):
 #  - delay (float): tiempo de espera entre movimientos, en segundos (por defecto 1s).
 def goto(ascensor, delay=1):
     while True:
+        ascensor["destinos"].sort()
+
+        time.sleep(delay)
+
         if len(ascensor["destinos"]) == 0:
             ascensor["estado"] = "detenido"
             time.sleep(delay)  # Espera un poco antes de revisar de nuevo
@@ -78,4 +82,3 @@ def goto(ascensor, delay=1):
             ascensor["estado"] = "detenido"
             ascensor["destinos"].pop(0)
 
-        time.sleep(delay)
