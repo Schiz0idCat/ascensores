@@ -10,12 +10,14 @@ from config.settings import BUILDING, TXT
 #  - columna (int): posición horizontal del ascensor (respecto a las coordenadas de l edificio).
 #  - pisoActual (int): piso inicial donde se encuentra el ascensor (respecto a las coordenadas de l edificio).
 #  - maxPisos (int): número total de pisos del edificio.
-def crear_ascensor(columna: int, pisoActual: int, maxPisos: int):
+#  - destinos (list): destinos a los que debe ir el ascensor
+def makeElevator(columna: int, pisoActual: int, maxPisos: int, destinos):
     return {
         "columna": BUILDING["COORD"][0] + columna,         # columna del edificio donde se ubica
         "pisoActual": BUILDING["COORD"][1] + pisoActual,   # piso actual
         "estado": "detenido",                              # "subiendo", "bajando" o "detenido"
         "maxPisos": maxPisos,                              # cantidad de pisos
+        "destinos": destinos,
         "capacidad": TXT["maxPersonasAscensor"]            # capacidad máxima de personas
     }
 
@@ -29,7 +31,7 @@ def crear_ascensor(columna: int, pisoActual: int, maxPisos: int):
 #  - cellSize (int): tamaño de las celdas de la matriz.
 #  - color (tuple): color de relleno del ascensor (RGB).
 #  - colorDireccion (tuple): color de la línea que indica la dirección de movimiento.
-def dibujar_ascensor(screen, ascensor, cellSize, color, colorDireccion):
+def drawElevator(screen, ascensor, cellSize, color, colorDireccion):
     col = ascensor["columna"]
     piso = ascensor["pisoActual"]
     estado = ascensor["estado"]
@@ -57,15 +59,23 @@ def dibujar_ascensor(screen, ascensor, cellSize, color, colorDireccion):
 #  - ascensor (dict): diccionario que representa el ascensor.
 #  - destino (int): piso al cual debe llegar el ascensor.
 #  - delay (float): tiempo de espera entre movimientos, en segundos (por defecto 1s).
-def goto(ascensor: dict, destino: int, delay: float = 1):
-    while ascensor["pisoActual"] != destino:
+def goto(ascensor, delay=1):
+    while True:
+        if len(ascensor["destinos"]) == 0:
+            ascensor["estado"] = "detenido"
+            time.sleep(delay)  # Espera un poco antes de revisar de nuevo
+            continue
+
+        destino = ascensor["destinos"][0]
+
         if ascensor["pisoActual"] < destino:
             ascensor["estado"] = "subiendo"
             ascensor["pisoActual"] += 1
         elif ascensor["pisoActual"] > destino:
             ascensor["estado"] = "bajando"
             ascensor["pisoActual"] -= 1
+        else:
+            ascensor["estado"] = "detenido"
+            ascensor["destinos"].pop(0)
 
         time.sleep(delay)
-
-    ascensor["estado"] = "detenido"
