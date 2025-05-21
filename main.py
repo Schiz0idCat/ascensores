@@ -1,4 +1,5 @@
 import sys
+import threading
 import pygame
 import random
 from config import colors
@@ -32,15 +33,22 @@ if __name__ == "__main__":
         ascensores =  BUILDING["ASCENSORES"]
     )
 
-    # Se crean los ascensores
+    # Crear ascensores y hilos
     ascensores = []
+    hilos = []
+
     for i in range(edificio["ascensores"]):
-        asc = elevator.crear_ascensor(
+        asc = elevator.makeElevator(
             columna = i,
             pisoActual = 0,
-            maxPisos = edificio["pisos"]
+            maxPisos = edificio["pisos"],
+            destinos = []
         )
         ascensores.append(asc)
+
+        hilo = threading.Thread(target=elevator.goto, args=(asc, 1.0), daemon=True)
+        hilo.start()
+        hilos.append(hilo)
 
     # personasPorCelda = {
     #     (Xcoord, Ycoord): [personas] // en la celda (x, y), están tales personas 
@@ -65,8 +73,11 @@ if __name__ == "__main__":
         grid.drawMatrix(screen, colors.GRAY, matriz)
         grid.drawVerticalCount(screen, BUILDING["FLOORS_COUNT"], matriz, colors.WHITE)
         building.drawBuilding(screen, matriz["cellSize"], BUILDING["COORD"], edificio, colors.WHITE, BUILDING["THICKNESS"])
+
+
         for asc in ascensores:
-            elevator.dibujar_ascensor(screen, asc, matriz["cellSize"], colors.RED, colors.GREEN)
+            elevator.drawElevator(screen, asc, matriz["cellSize"], colors.RED, colors.GREEN)
+
 
         for persona in personas:
             person.drawPerson(screen, persona, matriz["cellSize"], personasPorCelda, persona["color"])
