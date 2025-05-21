@@ -30,7 +30,7 @@ def makePerson(destino, piso, color):
 #  - color (tuple): color RGB para dibujar la persona.
 def drawPerson(screen, persona, cellSize, personasPorCelda, color):
     x = BUILDING["COORD"][0] + BUILDING["COLUMNAS"]
-    y = persona["piso"]
+    y = BUILDING["COORD"][1] + persona["piso"]
     maxPorCelda = 1  # o el máximo que quieras permitir en una celda
 
     # Buscar celda válida para esta persona
