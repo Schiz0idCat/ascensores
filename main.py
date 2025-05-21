@@ -42,12 +42,15 @@ if __name__ == "__main__":
         )
         ascensores.append(asc)
 
-    personas = []
+    # personasPorCelda = {
+    #     (Xcoord, Ycoord): [personas] // en la celda (x, y), están tales personas 
+    # }
     personasPorCelda = {}
-    for i in range(10):
+    personas = []
+    for i in range(5):
         destino = random.randint(1, edificio["pisos"] - 1)  # pisos destino entre 1 y N-1
-        p = person.makePerson(destino, color=colors.rand())
-        p["pos"] = (i % 4, 0)  # columnas 0-3, piso 0
+        piso = 0 # parte en el piso 0
+        p = person.makePerson(destino, piso, colors.rand())
         personas.append(p)
 
     # Bucle principal
@@ -65,8 +68,8 @@ if __name__ == "__main__":
         for asc in ascensores:
             elevator.dibujar_ascensor(screen, asc, matriz["cellSize"], colors.RED, colors.GREEN)
 
-    for persona in personas:
-        person.drawPerson(screen, persona, matriz["cellSize"], persona["pos"], personasPorCelda, persona["color"])
+        for persona in personas:
+            person.drawPerson(screen, persona, matriz["cellSize"], personasPorCelda, persona["color"])
 
         pygame.display.flip()
         clock.tick(FRAME["FPS"])

@@ -1,48 +1,79 @@
 import pygame
+from config.settings import BUILDING
 
-def makePerson(destino, color):
+
+# makePerson(destino, piso, color)
+# Crea un diccionario que representa a una persona con destino, piso actual y color.
+#
+# Parámetros:
+#  - destino (int): piso al que la persona quiere ir.
+#  - piso (int): piso en el que se encuentra actualmente la persona.
+#  - color (tuple): color RGB para dibujar a la persona.
+def makePerson(destino, piso, color):
     return {
         "destino": destino,
-        "en_ascensor": False,
+        "piso": piso,
         "color": color
     }
 
 
-def drawPerson(screen, persona, cellSize, coord, personas_por_celda, color):
-    col, row = coord
+# drawPerson(screen, persona, cellSize, personasPorCelda, color)
+# Dibuja una persona en la pantalla en una celda adyacente al edificio
+# Si no hay espacio para la persona en la celda en la que la vaya a dibujar,
+# Entonces se intenta dibujar en la celda de la derecha (así hasta encontrar una celda)
+#
+# Parámetros:
+#  - screen (pygame.Surface): superficie donde se dibujará la persona.
+#  - persona (dict): diccionario con los datos de la persona.
+#  - cellSize (int): tamaño de la celda para posicionar la persona.
+#  - personasPorCelda (dict): diccionario que mapea celdas a listas de personas que ocupan esa celda.
+#  - color (tuple): color RGB para dibujar la persona.
+def drawPerson(screen, persona, cellSize, personasPorCelda, color):
+    x = BUILDING["COORD"][0] + BUILDING["COLUMNAS"]
+    y = persona["piso"]
+    maxPorCelda = 1  # o el máximo que quieras permitir en una celda
 
-    # Recuento actual de personas en esa celda
-    key = (col, row)
-    count = len(personas_por_celda.get(key, []))
+    # Buscar celda válida para esta persona
+    while True:
+        # si la celda nunca ha sido ocupada
+        if (x, y) not in personasPorCelda:
+            personasPorCelda[(x, y)] = [] # se genera un registro para ella
 
-    # Si hay más de 4 personas, mover a la celda de la derecha
-    if count >= 5:
-        col += 1
-        key = (col, row)
-        count = len(personas_por_celda.get(key, []))
+        # Si ya está la persona en esta celda, no seguimos buscandole celda
+        if persona in personasPorCelda[(x, y)]:
+            break
 
-    # Añadir persona a la celda actual
-    if key not in personas_por_celda:
-        personas_por_celda[key] = []
-    personas_por_celda[key].append(persona)
+        # Si no está en la celda y cabe en esta, agregamos a la persona
+        if len(personasPorCelda[(x, y)]) < maxPorCelda:
+            personasPorCelda[(x, y)].append(persona)
+            break
 
-    # Recalcular posición y tamaño
-    margin = 4
-    radius = (cellSize - 2 * margin) // 3  # Tamaño reducido para múltiples personas
-    total = len(personas_por_celda[key])
-    max_in_cell = min(5, total)
+        # Si no hay espacio, probamos siguiente celda a la derecha
+        x += 1
 
-    # Coordenadas base
     screen_height = screen.get_height()
-    x0 = col * cellSize
-    y0 = screen_height - (row + 1) * cellSize
+    x0 = x * cellSize
+    y0 = screen_height - (y + 1) * cellSize
 
-    # Distribuir horizontalmente (alineados en fila dentro de celda)
-    spacing = cellSize // max_in_cell
-    index = personas_por_celda[key].index(persona)
+    margin = 4
+    max_radius = (cellSize - 2 * margin) // 2
+
+    personasEnCelda = personasPorCelda[(x, y)]
+    total = len(personasEnCelda)
+    index = personasEnCelda.index(persona)
+
+    # Calcular el radio para que no queden enormes
+    if total > 1:
+        radius = max_radius // total
+        if radius < 2:
+            radius = 2  # mínimo radio visible
+    else:
+        radius = max_radius
+
+    spacing = cellSize // total
     cx = x0 + spacing * index + spacing // 2
     cy = y0 + cellSize // 2
 
-    # Dibujar círculo (persona)
     pygame.draw.circle(screen, color, (cx, cy), radius)
-    pygame.draw.circle(screen, (0, 0, 0), (cx, cy), radius, 2)  # borde negro
+    pygame.draw.circle(screen, (0, 0, 0), (cx, cy), radius, 2)
+
