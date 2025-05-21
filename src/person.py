@@ -1,4 +1,6 @@
 import pygame
+import random
+import time
 from config.settings import BUILDING
 
 
@@ -9,11 +11,12 @@ from config.settings import BUILDING
 #  - destino (int): piso al que la persona quiere ir.
 #  - piso (int): piso en el que se encuentra actualmente la persona.
 #  - color (tuple): color RGB para dibujar a la persona.
-def makePerson(destino, piso, color):
+def makePerson(destino, piso, color, ascensor):
     return {
         "destino": destino,
         "piso": piso,
-        "color": color
+        "color": color,
+        "elevator": ascensor
     }
 
 
@@ -29,27 +32,34 @@ def makePerson(destino, piso, color):
 #  - personasPorCelda (dict): diccionario que mapea celdas a listas de personas que ocupan esa celda.
 #  - color (tuple): color RGB para dibujar la persona.
 def drawPerson(screen, persona, cellSize, personasPorCelda, color):
-    x = BUILDING["COORD"][0] + BUILDING["COLUMNAS"]
-    y = BUILDING["COORD"][1] + persona["piso"]
-    maxPorCelda = 1  # o el máximo que quieras permitir en una celda
+    if persona["elevator"] != None:
+        y = persona["elevator"]["pisoActual"]
+        x = persona["elevator"]["columna"]
 
-    # Buscar celda válida para esta persona
-    while True:
-        # si la celda nunca ha sido ocupada
         if (x, y) not in personasPorCelda:
-            personasPorCelda[(x, y)] = [] # se genera un registro para ella
+            personasPorCelda[(x, y)] = []
 
-        # Si ya está la persona en esta celda, no seguimos buscandole celda
-        if persona in personasPorCelda[(x, y)]:
-            break
-
-        # Si no está en la celda y cabe en esta, agregamos a la persona
-        if len(personasPorCelda[(x, y)]) < maxPorCelda:
+        if persona not in personasPorCelda[(x, y)]:
             personasPorCelda[(x, y)].append(persona)
-            break
+    else:
+        # Dibujo normal, al lado del edificio
+        x = BUILDING["COORD"][0] + BUILDING["COLUMNAS"]
+        y = BUILDING["COORD"][1] + persona["piso"]
+        maxPorCelda = 1
 
-        # Si no hay espacio, probamos siguiente celda a la derecha
-        x += 1
+        # Buscar celda válida para esta persona
+        while True:
+            if (x, y) not in personasPorCelda:
+                personasPorCelda[(x, y)] = []
+
+            if persona in personasPorCelda[(x, y)]:
+                break
+
+            if len(personasPorCelda[(x, y)]) < maxPorCelda:
+                personasPorCelda[(x, y)].append(persona)
+                break
+
+            x += 1
 
     screen_height = screen.get_height()
     x0 = x * cellSize
@@ -77,3 +87,32 @@ def drawPerson(screen, persona, cellSize, personasPorCelda, color):
     pygame.draw.circle(screen, color, (cx, cy), radius)
     pygame.draw.circle(screen, (0, 0, 0), (cx, cy), radius, 2)
 
+
+def removePersonFromCell(person, y, peoplePerCell):
+    for (_, clave_y), people in peoplePerCell.items():
+        if clave_y == y and person in people:
+            people.remove(person)
+
+
+def goto(elevators, person, peoplePerCell, delay=1):
+    time.sleep(delay)
+    elevator = random.choice(elevators)
+
+    if len(elevator["destinos"]) >= elevator["capacidad"]:
+        return
+
+    # bloquear array para todos los demás
+    elevator["destinos"].append(person["destino"])
+    person["elevator"] = elevator
+    removePersonFromCell(person, person["piso"], peoplePerCell)
+    # desbloquear array para todos los demás
+    
+    # subirAlElevador()
+
+    while person["piso"] != person["destino"]:
+        person["piso"] = elevator["pisoActual"]
+        time.sleep(delay)
+
+    # bajarDelElevador()
+
+    person["elevator"] = None

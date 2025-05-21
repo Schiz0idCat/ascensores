@@ -35,8 +35,7 @@ if __name__ == "__main__":
 
     # Crear ascensores y hilos
     ascensores = []
-    hilos = []
-
+    ascHilos = []
     for i in range(edificio["ascensores"]):
         asc = elevator.makeElevator(
             columna = i,
@@ -48,18 +47,28 @@ if __name__ == "__main__":
 
         hilo = threading.Thread(target=elevator.goto, args=(asc, 1.0), daemon=True)
         hilo.start()
-        hilos.append(hilo)
+        ascHilos.append(hilo)
 
     # personasPorCelda = {
     #     (Xcoord, Ycoord): [personas] // en la celda (x, y), están tales personas 
     # }
     personasPorCelda = {}
     personas = []
-    for i in range(5):
+    perHilos = []
+    for i in range(20):
         destino = random.randint(1, edificio["pisos"] - 1)  # pisos destino entre 1 y N-1
         piso = 0 # parte en el piso 0
-        p = person.makePerson(destino, piso, colors.rand())
-        personas.append(p)
+        persona = person.makePerson(
+            destino,
+            piso,
+            colors.rand(),
+            None
+        )
+        personas.append(persona)
+
+        hilo = threading.Thread(target=person.goto, args=(ascensores, persona, personasPorCelda), daemon=True)
+        hilo.start()
+        perHilos.append(hilo)
 
     # Bucle principal
     running = True
