@@ -1,15 +1,19 @@
 import pygame
 
 
-# makeMatrix(filas, columnas)
+# makeMatrix(rows, columns)
 # Retorna un diccionario con los valores proppios de una matriz (imita un struct).
 #
 # Parámetros:
-#  - filas (int): cantidad de filas hacia arriba.
-#  - columnas (int): cantidad de columnas hacia la derecha.
+#  - rows (int): cantidad de rows hacia arriba.
+#  - columns (int): cantidad de columns hacia la derecha.
 #  - cellSize (int): tamaño, en píxeles, de las celdas de la matriz.
-def makeMatrix(filas: int, columnas: int, cellSize: int):
-    return {"filas": filas, "columnas": columnas, "cellSize": cellSize}
+def makeMatrix(rows, columns, cellSize):
+    return {
+        "rows": rows,
+        "columns": columns,
+        "cellSize": cellSize
+    }
 
 
 # drawMatrix(screen, cellSize, color, matrix)
@@ -17,18 +21,18 @@ def makeMatrix(filas: int, columnas: int, cellSize: int):
 #
 # Parámetros:
 #  - screen (pygame.surface.Surface): el frame donde se dibujará.
-#  - color (tuple): color de la matriz (RGB).
+#  - color (tuple(int, int, int)): color de la matriz (RGB).
 #  - matrix (dict): diccionario retornado por makeMatrix.
 def drawMatrix(screen, color, matrix):
     _, height = screen.get_size()
 
-    filas = matrix["filas"]
-    columnas = matrix["columnas"]
+    rows = matrix["rows"]
+    columns = matrix["columns"]
     cellSize = matrix["cellSize"]
 
-    for row in range(filas):
+    for row in range(rows):
         y = height - (row + 1) * cellSize
-        for col in range(columnas):
+        for col in range(columns):
             x = col * cellSize
             rect = pygame.Rect(x, y, cellSize, cellSize)
             pygame.draw.rect(screen, color, rect, 1)
@@ -41,19 +45,19 @@ def drawMatrix(screen, color, matrix):
 # Parámetros:
 #  - screen (pygame.surface.Surface): frame donde se dibujará el texto.
 #  - coords (tuple): una tupla de dos elementos:
-#       - coordenadas (tuple): coordenadas iniciales (columna, fila).
+#       - coordenadas (tuple(int, int)): coordenadas iniciales (columna, fila).
 #       - y final (int): fila final hasta donde se dibujará el contador.
 #  - matrix (dict): diccionario con los datos de la grilla (como el retornado por makeMatrix).
 #  - color (tuple): color del texto en formato RGB.
 def drawVerticalCount(screen, coords, matrix, color):
-    filas = matrix["filas"]
+    rows = matrix["rows"]
     cellSize = matrix["cellSize"]
 
     (inicioX, inicioY), finalY = coords
 
     # Validamos límites
-    if finalY is None or finalY >= filas:
-        finalY = filas - 1
+    if finalY is None or finalY >= rows:
+        finalY = rows - 1
     inicioY = max(0, min(inicioY, finalY))
 
     font = pygame.font.SysFont(None, cellSize // 2)

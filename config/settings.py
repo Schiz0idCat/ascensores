@@ -9,7 +9,7 @@ FRAME = {
     },
     "RESOLUTION": "HD+",  # Resolución seleccionada
     "FPS": 60,  # Tasa de refresco
-    "TITLE": "Ascensores",  # Título de la ventana
+    "TITLE": "Elevators",  # Título de la ventana
 }
 
 # Aplica la resolución deseada
@@ -23,14 +23,14 @@ GRID = {
 TXT = readTxt.leerTxt("./config/ascensores.txt")
 
 BUILDING = {
-    "PISOS": 11,
-    "COLUMNAS": 3,
-    "ASCENSORES": TXT["ascensores"],
+    "FLOORS": 11,
+    "COLS": 3,
+    "ELEVATORS": TXT["elevators"],
     "COORD": (1, 0),  # Coordenadas donde se dibuja el edificio
     "THICKNESS": 2
 }
 
 # Se controla que el ancho del edificio alcanze para sus ascensores
-BUILDING["COLUMNAS"] = BUILDING["ASCENSORES"] if BUILDING["COLUMNAS"] < BUILDING["ASCENSORES"] else BUILDING["COLUMNAS"]
+BUILDING["COLS"] = BUILDING["ELEVATORS"] if BUILDING["COLS"] < BUILDING["ELEVATORS"] else BUILDING["COLS"]
 # Coordenadas para el conteo de pisos del edificio
-BUILDING["FLOORS_COUNT"] = ((BUILDING["COORD"][0] - 1, BUILDING["COORD"][1]), BUILDING["PISOS"] - 1)
+BUILDING["FLOORS_COUNT"] = ((BUILDING["COORD"][0] - 1, BUILDING["COORD"][1]), BUILDING["FLOORS"] - 1)

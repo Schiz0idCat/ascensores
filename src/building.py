@@ -5,14 +5,14 @@ import pygame
 # Retorna un diccionario con los valores propios de un edificio (imita un struct)
 #
 # Parámetros:
-#  - pisos (int): cantidad de pisos del edificio (alto)
-#  - columnas (int): cantidad de columnas del edificio (ancho)
-#  - ascensores (int): cantidad de ascensores del edificio
-def makeBuilding(pisos: int, columnas: int, ascensores: int):
+#  - floors (int): cantidad de pisos del edificio (alto)
+#  - columns (int): cantidad de columnas del edificio (ancho)
+#  - lenElevators (int): cantidad de ascensores del edificio
+def makeBuilding(floors, columns, lenElevators):
     return {
-        "pisos": pisos,
-        "columnas": columnas,
-        "ascensores": ascensores
+        "floors": floors,
+        "cols": columns,
+        "lenElevators": lenElevators
     }
 
 
@@ -20,17 +20,17 @@ def makeBuilding(pisos: int, columnas: int, ascensores: int):
 # Dibuja el edificio en pantalla, según sus características y una posición base.
 #
 # Parámetros:
-#  - screen: el frame donde se dibujará
-#  - cellSize: tamaño de cada celda de la matriz (en píxeles)
-#  - coords: coordenadas (x, y) donde empieza el dibujo (desde la esquina inferior izquierda)
-#  - edificio: diccionario retornado por makeBuilding, con 'pisos', 'columnas' y 'ascensores'
-#  - color: color del borde del edificio (RGB)
-#  - thickness: grosor de las líneas
-def drawBuilding(screen: pygame.surface.Surface, cellSize: int, coords: tuple, edificio: dict, color: tuple, thickness: int):
+#  - screen (pygame.surface.Surface,): el frame donde se dibujará
+#  - cellSize (int): tamaño de cada celda de la matriz (en píxeles)
+#  - coords (tuple(int, int)): coordenadas (x, y) donde empieza el dibujo (desde la esquina inferior izquierda)
+#  - building (dict): diccionario retornado por makeBuilding, con 'pisos', 'columnas' y 'ascensores'
+#  - color (tuple(int, int, int)): color del borde del edificio (RGB)
+#  - thickness (int): grosor de las líneas
+def drawBuilding(screen, cellSize, coords, building, color, thickness):
     # desempaquetamiento por legibilidad
     x, y = coords
-    ancho = edificio["columnas"]
-    alto = edificio["pisos"]
+    ancho = building["cols"]
+    alto = building["floors"]
 
     screen_height = screen.get_height()
 
@@ -48,3 +48,4 @@ def drawBuilding(screen: pygame.surface.Surface, cellSize: int, coords: tuple, e
     for i in range(1, alto):
         piso_y = py + i * cellSize
         pygame.draw.line(screen, color, (px, piso_y), (px + width, piso_y), thickness)
+
