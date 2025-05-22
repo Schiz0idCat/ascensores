@@ -4,19 +4,20 @@ import time
 from config.settings import BUILDING
 
 
-# makePerson(destino, piso, color)
-# Crea un diccionario que representa a una persona con destino, piso actual y color.
+# makePerson(target, currentFloor, color)
+# Crea un diccionario que representa a una persona con target, currentFloor actual y color.
 #
 # Parámetros:
-#  - destino (int): piso al que la persona quiere ir.
-#  - piso (int): piso en el que se encuentra actualmente la persona.
+#  - target (int): currentFloor al que la persona quiere ir.
+#  - currentFloor (int): currentFloor en el que se encuentra actualmente la persona.
 #  - color (tuple): color RGB para dibujar a la persona.
-def makePerson(destino, piso, color, ascensor):
+#  - elevator (dict): ascensor al que se sube (si no está dentro de ninguno, es None)
+def makePerson(target, currentFloor, color, elevator):
     return {
-        "destino": destino,
-        "piso": piso,
+        "target": target,
+        "currentFloor": currentFloor,
         "color": color,
-        "elevator": ascensor
+        "elevator": elevator
     }
 
 
@@ -27,36 +28,36 @@ def makePerson(destino, piso, color, ascensor):
 #
 # Parámetros:
 #  - screen (pygame.Surface): superficie donde se dibujará la persona.
-#  - persona (dict): diccionario con los datos de la persona.
+#  - person (dict): diccionario con los datos de la persona.
 #  - cellSize (int): tamaño de la celda para posicionar la persona.
-#  - personasPorCelda (dict): diccionario que mapea celdas a listas de personas que ocupan esa celda.
+#  - peoplePerCell (dict): diccionario que mapea celdas a listas de personas que ocupan esa celda.
 #  - color (tuple): color RGB para dibujar la persona.
-def drawPerson(screen, persona, cellSize, personasPorCelda, color):
-    if persona["elevator"] != None:
-        y = persona["elevator"]["pisoActual"]
-        x = persona["elevator"]["columna"]
+def drawPerson(screen, person, cellSize, peoplePerCell, color):
+    if person["elevator"] != None:
+        y = person["elevator"]["currentFloor"]
+        x = person["elevator"]["column"]
 
-        if (x, y) not in personasPorCelda:
-            personasPorCelda[(x, y)] = []
+        if (x, y) not in peoplePerCell:
+            peoplePerCell[(x, y)] = []
 
-        if persona not in personasPorCelda[(x, y)]:
-            personasPorCelda[(x, y)].append(persona)
+        if person not in peoplePerCell[(x, y)]:
+            peoplePerCell[(x, y)].append(person)
     else:
         # Dibujo normal, al lado del edificio
-        x = BUILDING["COORD"][0] + BUILDING["COLUMNAS"]
-        y = BUILDING["COORD"][1] + persona["piso"]
+        x = BUILDING["COORD"][0] + BUILDING["COLS"]
+        y = BUILDING["COORD"][1] + person["currentFloor"]
         maxPorCelda = 1
 
         # Buscar celda válida para esta persona
         while True:
-            if (x, y) not in personasPorCelda:
-                personasPorCelda[(x, y)] = []
+            if (x, y) not in peoplePerCell:
+                peoplePerCell[(x, y)] = []
 
-            if persona in personasPorCelda[(x, y)]:
+            if person in peoplePerCell[(x, y)]:
                 break
 
-            if len(personasPorCelda[(x, y)]) < maxPorCelda:
-                personasPorCelda[(x, y)].append(persona)
+            if len(peoplePerCell[(x, y)]) < maxPorCelda:
+                peoplePerCell[(x, y)].append(person)
                 break
 
             x += 1
@@ -68,9 +69,9 @@ def drawPerson(screen, persona, cellSize, personasPorCelda, color):
     margin = 4
     max_radius = (cellSize - 2 * margin) // 2
 
-    personasEnCelda = personasPorCelda[(x, y)]
-    total = len(personasEnCelda)
-    index = personasEnCelda.index(persona)
+    peopleInCell = peoplePerCell[(x, y)]
+    total = len(peopleInCell)
+    index = peopleInCell.index(person)
 
     # Calcular el radio para que no queden enormes
     if total > 1:
@@ -98,19 +99,19 @@ def goto(elevators, person, peoplePerCell, delay=1):
     time.sleep(delay)
     elevator = random.choice(elevators)
 
-    if len(elevator["destinos"]) >= elevator["capacidad"]:
+    if len(elevator["targets"]) >= elevator["capacity"]:
         return
 
     # bloquear array para todos los demás
-    elevator["destinos"].append(person["destino"])
+    elevator["targets"].append(person["target"])
     person["elevator"] = elevator
-    removePersonFromCell(person, person["piso"], peoplePerCell)
+    removePersonFromCell(person, person["currentFloor"], peoplePerCell)
     # desbloquear array para todos los demás
     
     # subirAlElevador()
 
-    while person["piso"] != person["destino"]:
-        person["piso"] = elevator["pisoActual"]
+    while person["currentFloor"] != person["target"]:
+        person["currentFloor"] = elevator["currentFloor"]
         time.sleep(delay)
 
     # bajarDelElevador()

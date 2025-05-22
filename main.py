@@ -17,58 +17,58 @@ if __name__ == "__main__":
     # Se calcula el tamaño de las celdas con base en la cantidad de filas
     screen_width, screen_height = screen.get_size()
     cellSize = screen_height // GRID["ROWS"]
-    columnas = GRID["COLS"] if GRID["COLS"] >= 0 else screen_width // cellSize
+    columns = GRID["COLS"] if GRID["COLS"] >= 0 else screen_width // cellSize
 
     # Se crea la matriz que se dibuja de fondo
-    matriz = grid.makeMatrix(
-        filas = GRID["ROWS"],
-        columnas = columnas,
+    matrix = grid.makeMatrix(
+        rows = GRID["ROWS"],
+        columns = columns,
         cellSize = cellSize
     )
 
     # Se crea el edificio
-    edificio = building.makeBuilding(
-        pisos = BUILDING["PISOS"],
-        columnas = BUILDING["COLUMNAS"],
-        ascensores =  BUILDING["ASCENSORES"]
+    tower = building.makeBuilding(
+        floors = BUILDING["FLOORS"],
+        columns = BUILDING["COLS"],
+        lenElevators =  BUILDING["ELEVATORS"]
     )
 
     # Crear ascensores y hilos
-    ascensores = []
-    ascHilos = []
-    for i in range(edificio["ascensores"]):
-        asc = elevator.makeElevator(
-            columna = i,
-            pisoActual = 0,
-            maxPisos = edificio["pisos"],
-            destinos = []
+    elevators = []
+    thrdElevatros = []
+    for i in range(tower["lenElevators"]):
+        lift = elevator.makeElevator(
+            column = i,
+            currentFloor = 0,
+            floors = tower["floors"],
+            targets = []
         )
-        ascensores.append(asc)
+        elevators.append(lift)
 
-        hilo = threading.Thread(target=elevator.goto, args=(asc, 1.0), daemon=True)
+        hilo = threading.Thread(target=elevator.goto, args=(lift, 1.0), daemon=True)
         hilo.start()
-        ascHilos.append(hilo)
+        thrdElevatros.append(hilo)
 
     # personasPorCelda = {
     #     (Xcoord, Ycoord): [personas] // en la celda (x, y), están tales personas 
     # }
-    personasPorCelda = {}
-    personas = []
-    perHilos = []
+    peoplePerCell = {}
+    people = []
+    thrdPeople = []
     for i in range(20):
-        destino = random.randint(1, edificio["pisos"] - 1)  # pisos destino entre 1 y N-1
-        piso = 0 # parte en el piso 0
-        persona = person.makePerson(
-            destino,
-            piso,
+        target = random.randint(1, tower["floors"] - 1)  # pisos destino entre 1 y N-1
+        currentFloor = 0 # parte en el piso 0
+        user = person.makePerson(
+            target,
+            currentFloor,
             colors.rand(),
             None
         )
-        personas.append(persona)
+        people.append(user)
 
-        hilo = threading.Thread(target=person.goto, args=(ascensores, persona, personasPorCelda), daemon=True)
+        hilo = threading.Thread(target=person.goto, args=(elevators, user, peoplePerCell), daemon=True)
         hilo.start()
-        perHilos.append(hilo)
+        thrdPeople.append(hilo)
 
     # Bucle principal
     running = True
@@ -79,17 +79,17 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 running = False
 
-        grid.drawMatrix(screen, colors.GRAY, matriz)
-        grid.drawVerticalCount(screen, BUILDING["FLOORS_COUNT"], matriz, colors.WHITE)
-        building.drawBuilding(screen, matriz["cellSize"], BUILDING["COORD"], edificio, colors.WHITE, BUILDING["THICKNESS"])
+        grid.drawMatrix(screen, colors.GRAY, matrix)
+        grid.drawVerticalCount(screen, BUILDING["FLOORS_COUNT"], matrix, colors.WHITE)
+        building.drawBuilding(screen, matrix["cellSize"], BUILDING["COORD"], tower, colors.WHITE, BUILDING["THICKNESS"])
 
 
-        for asc in ascensores:
-            elevator.drawElevator(screen, asc, matriz["cellSize"], colors.RED, colors.GREEN)
+        for lift in elevators:
+            elevator.drawElevator(screen, lift, matrix["cellSize"], colors.RED, colors.GREEN)
 
 
-        for persona in personas:
-            person.drawPerson(screen, persona, matriz["cellSize"], personasPorCelda, persona["color"])
+        for user in people:
+            person.drawPerson(screen, user, matrix["cellSize"], peoplePerCell, user["color"])
 
         pygame.display.flip()
         clock.tick(FRAME["FPS"])

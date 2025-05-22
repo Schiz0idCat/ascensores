@@ -4,37 +4,37 @@ from config.settings import BUILDING, TXT
 
 
 # crear_ascensor(posicion_columna, piso_inicial, total_pisos)
-# Crea un diccionario que representa un ascensor.
+# Crea un diccionario que representa un elevator.
 #
 # Parámetros:
-#  - columna (int): posición horizontal del ascensor (respecto a las coordenadas de l edificio).
-#  - pisoActual (int): piso inicial donde se encuentra el ascensor (respecto a las coordenadas de l edificio).
-#  - maxPisos (int): número total de pisos del edificio.
-#  - destinos (list): destinos a los que debe ir el ascensor
-def makeElevator(columna: int, pisoActual: int, maxPisos: int, destinos):
+#  - column (int): posición horizontal del elevator (respecto a las coordenadas de l edificio).
+#  - currentFloor (int): piso inicial donde se encuentra el elevator (respecto a las coordenadas de l edificio).
+#  - floors (int): número total de pisos del edificio.
+#  - targets (list): targets a los que debe ir el elevator
+def makeElevator(column, currentFloor, floors, targets):
     return {
-        "columna": BUILDING["COORD"][0] + columna,         # columna del edificio donde se ubica
-        "pisoActual": BUILDING["COORD"][1] + pisoActual,   # piso actual
-        "estado": "detenido",                              # "subiendo", "bajando" o "detenido"
-        "maxPisos": maxPisos,                              # cantidad de pisos
-        "destinos": destinos,
-        "capacidad": TXT["maxPersonasAscensor"]            # capacidad máxima de personas
+        "column": BUILDING["COORD"][0] + column,               # columna del edificio donde se ubica
+        "currentFloor": BUILDING["COORD"][1] + currentFloor,   # piso actual
+        "state": "stop",                                       # "up", "down" o "stop"
+        "floors": floors,                                      # cantidad de pisos
+        "targets": targets,                                    # lista de los pisos a los que va
+        "capacity": TXT["elevatorCapacity"]                    # capacidad máxima de personas
     }
 
 
-# dibujar_ascensor(screen, ascensor, cellSize, color, colorDireccion)
-# Dibuja un ascensor en la pantalla, centrado dentro de su celda correspondiente.
+# dibujar_ascensor(screen, elevator, cellSize, color, colorDirection)
+# Dibuja un elevator en la pantalla, centrado dentro de su celda correspondiente.
 #
 # Parámetros:
-#  - screen (pygame.surface.Surface): superficie donde se dibujará el ascensor.
-#  - ascensor (dict): diccionario con los datos del ascensor (como el retornado por crear_ascensor).
+#  - screen (pygame.surface.Surface): superficie donde se dibujará el elevator.
+#  - elevator (dict): diccionario con los datos del elevator (como el retornado por crear_ascensor).
 #  - cellSize (int): tamaño de las celdas de la matriz.
-#  - color (tuple): color de relleno del ascensor (RGB).
-#  - colorDireccion (tuple): color de la línea que indica la dirección de movimiento.
-def drawElevator(screen, ascensor, cellSize, color, colorDireccion):
-    col = ascensor["columna"]
-    piso = ascensor["pisoActual"]
-    estado = ascensor["estado"]
+#  - color (tuple): color de relleno del elevator (RGB).
+#  - colorDirection (tuple): color de la línea que indica la dirección de movimiento.
+def drawElevator(screen, elevator, cellSize, color, colorDirection):
+    col = elevator["column"]
+    piso = elevator["currentFloor"]
+    state = elevator["state"]
 
     # Calcular posición centrada en la celda
     size = int(cellSize * 0.8)
@@ -46,39 +46,39 @@ def drawElevator(screen, ascensor, cellSize, color, colorDireccion):
     rect = pygame.Rect(x, y, size, size)
     pygame.draw.rect(screen, color, rect)
 
-    # Dibujar arista según estado
-    if estado == "subiendo":
-        pygame.draw.line(screen, colorDireccion, (x, y), (x + size, y), 2)
-    elif estado == "bajando":
-        pygame.draw.line(screen, colorDireccion, (x, y + size), (x + size, y + size), 2)
+    # Dibujar arista según state
+    if state == "up":
+        pygame.draw.line(screen, colorDirection, (x, y), (x + size, y), 2)
+    elif state == "down":
+        pygame.draw.line(screen, colorDirection, (x, y + size), (x + size, y + size), 2)
 
-# goto(ascensor, destino, delay)
-# Mueve un ascensor hacia un piso de destino, modificando su estado y posición gradualmente.
+
+# goto(elevator, destino, delay)
+# Mueve un elevator hacia un piso de destino, modificando su state y posición gradualmente.
 #
 # Parámetros:
-#  - ascensor (dict): diccionario que representa el ascensor.
-#  - destino (int): piso al cual debe llegar el ascensor.
+#  - elevator (dict): diccionario que representa el elevator que va a mover.
 #  - delay (float): tiempo de espera entre movimientos, en segundos (por defecto 1s).
-def goto(ascensor, delay=1):
+def goto(elevator, delay=1):
     while True:
-        ascensor["destinos"].sort()
+        elevator["targets"].sort()
 
         time.sleep(delay)
 
-        if len(ascensor["destinos"]) == 0:
-            ascensor["estado"] = "detenido"
+        if len(elevator["targets"]) == 0:
+            elevator["state"] = "detenido"
             time.sleep(delay)  # Espera un poco antes de revisar de nuevo
             continue
 
-        destino = ascensor["destinos"][0]
+        destino = elevator["targets"][0]
 
-        if ascensor["pisoActual"] < destino:
-            ascensor["estado"] = "subiendo"
-            ascensor["pisoActual"] += 1
-        elif ascensor["pisoActual"] > destino:
-            ascensor["estado"] = "bajando"
-            ascensor["pisoActual"] -= 1
+        if elevator["currentFloor"] < destino:
+            elevator["state"] = "up"
+            elevator["currentFloor"] += 1
+        elif elevator["currentFloor"] > destino:
+            elevator["state"] = "down"
+            elevator["currentFloor"] -= 1
         else:
-            ascensor["estado"] = "detenido"
-            ascensor["destinos"].pop(0)
+            elevator["state"] = "stop"
+            elevator["targets"].pop(0)
 
