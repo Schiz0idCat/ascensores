@@ -46,7 +46,7 @@ def drawPerson(screen, person, cellSize, peoplePerCell, color):
         # Dibujo normal, al lado del edificio
         x = BUILDING["COORD"][0] + BUILDING["COLS"]
         y = BUILDING["COORD"][1] + person["currentFloor"]
-        maxPorCelda = 1
+        maxPorCelda = 5
 
         # Buscar celda válida para esta persona
         while True:
@@ -66,28 +66,43 @@ def drawPerson(screen, person, cellSize, peoplePerCell, color):
     x0 = x * cellSize
     y0 = screen_height - (y + 1) * cellSize
 
-    margin = 4
-    max_radius = (cellSize - 2 * margin) // 2
-
     peopleInCell = peoplePerCell[(x, y)]
     total = len(peopleInCell)
     index = peopleInCell.index(person)
 
-    # Calcular el radio para que no queden enormes
-    if total > 1:
-        radius = max_radius // total
-        if radius < 2:
-            radius = 2  # mínimo radio visible
-    else:
-        radius = max_radius
+    positions = {
+        1: [(0.5, 0.5)],
+        2: [(0.3, 0.3), (0.7, 0.7)],
+        3: [(0.3, 0.3), (0.7, 0.3), (0.5, 0.7)],
+        4: [(0.3, 0.3), (0.7, 0.3), (0.3, 0.7), (0.7, 0.7)],
+        5: [(0.3, 0.3), (0.7, 0.3), (0.3, 0.7), (0.7, 0.7), (0.5, 0.5)],
+    }
 
-    spacing = cellSize // total
-    cx = x0 + spacing * index + spacing // 2
-    cy = y0 + cellSize // 2
+    relative_positions = positions[total]
+    rel_x, rel_y = relative_positions[index]
+    cx = int(x0 + rel_x * cellSize)
+    cy = int(y0 + rel_y * cellSize)
+
+    # Radio específico por cantidad de personas
+    radio_por_personas = {
+        1: cellSize // 2.5,
+        2: cellSize // 3.5,
+        3: cellSize // 4.5,
+        4: cellSize // 5,
+        5: cellSize // 5.5,
+    }
+
+    radius = radio_por_personas[total]
 
     pygame.draw.circle(screen, color, (cx, cy), radius)
     pygame.draw.circle(screen, (0, 0, 0), (cx, cy), radius, 2)
 
+    # Renderizar el número del piso destino
+    font_size = int(max(radius, 10))
+    font = pygame.font.Font(None, font_size)
+    text_surface = font.render(str(person["target"]), True, (0, 0, 0))
+    text_rect = text_surface.get_rect(center=(cx, cy))
+    screen.blit(text_surface, text_rect)
 
 def removePersonFromCell(person, y, peoplePerCell):
     for (_, clave_y), people in peoplePerCell.items():
