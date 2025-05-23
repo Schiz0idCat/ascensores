@@ -46,7 +46,7 @@ def drawPerson(screen, person, cellSize, peoplePerCell, color):
         # Dibujo normal, al lado del edificio
         x = BUILDING["COORD"][0] + BUILDING["COLS"]
         y = BUILDING["COORD"][1] + person["currentFloor"]
-        maxPorCelda = 5
+        maxPerCell = 5
 
         # Buscar celda válida para esta persona
         while True:
@@ -56,7 +56,7 @@ def drawPerson(screen, person, cellSize, peoplePerCell, color):
             if person in peoplePerCell[(x, y)]:
                 break
 
-            if len(peoplePerCell[(x, y)]) < maxPorCelda:
+            if len(peoplePerCell[(x, y)]) < maxPerCell:
                 peoplePerCell[(x, y)].append(person)
                 break
 
@@ -79,12 +79,12 @@ def drawPerson(screen, person, cellSize, peoplePerCell, color):
     }
 
     relative_positions = positions[total]
-    rel_x, rel_y = relative_positions[index]
-    cx = int(x0 + rel_x * cellSize)
-    cy = int(y0 + rel_y * cellSize)
+    relX, relY = relative_positions[index]
+    cx = int(x0 + relX * cellSize)
+    cy = int(y0 + relY * cellSize)
 
     # Radio específico por cantidad de personas
-    radio_por_personas = {
+    radiusPerPerson = {
         1: cellSize // 2.5,
         2: cellSize // 3.5,
         3: cellSize // 4.5,
@@ -92,7 +92,7 @@ def drawPerson(screen, person, cellSize, peoplePerCell, color):
         5: cellSize // 5.5,
     }
 
-    radius = radio_por_personas[total]
+    radius = radiusPerPerson[total]
 
     pygame.draw.circle(screen, color, (cx, cy), radius)
     pygame.draw.circle(screen, (0, 0, 0), (cx, cy), radius, 2)
@@ -105,8 +105,8 @@ def drawPerson(screen, person, cellSize, peoplePerCell, color):
     screen.blit(text_surface, text_rect)
 
 def removePersonFromCell(person, y, peoplePerCell):
-    for (_, clave_y), people in peoplePerCell.items():
-        if clave_y == y and person in people:
+    for (_, keyY), people in peoplePerCell.items():
+        if keyY == y and person in people:
             people.remove(person)
 
 

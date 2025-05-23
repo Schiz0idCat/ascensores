@@ -53,25 +53,25 @@ def drawVerticalCount(screen, coords, matrix, color):
     rows = matrix["rows"]
     cellSize = matrix["cellSize"]
 
-    (inicioX, inicioY), finalY = coords
+    (startX, startY), finalY = coords
 
     # Validamos límites
     if finalY is None or finalY >= rows:
         finalY = rows - 1
-    inicioY = max(0, min(inicioY, finalY))
+    startY = max(0, min(startY, finalY))
 
     font = pygame.font.SysFont(None, cellSize // 2)
 
-    contador = 0
+    count = 0
     _, height = screen.get_size()
 
-    for row in range(inicioY, finalY + 1):
-        x = inicioX * cellSize
+    for row in range(startY, finalY + 1):
+        x = startX * cellSize
         y = height - (row + 1) * cellSize
 
-        text_surface = font.render(str(contador), True, color)
-        text_rect = text_surface.get_rect(center=(x + cellSize // 2, y + cellSize // 2))
+        textSurface = font.render(str(count), True, color)
+        textRect = textSurface.get_rect(center=(x + cellSize // 2, y + cellSize // 2))
 
-        screen.blit(text_surface, text_rect)
+        screen.blit(textSurface, textRect)
 
-        contador += 1
+        count += 1
