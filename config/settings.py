@@ -3,6 +3,7 @@ from src import readTxt
 FRAME = {
     "RESOLUTIONS": {  # Resoluciones disponibles:
         "SD": (640, 480),  # - Standard Definition (4:3)
+        "QHD": (960, 540), # - (16:9)
         "HD": (1280, 720),  # - High Definition (16:9)
         "HD+": (1600, 900),  # - HD+ (16:9)
         "FHD": (1920, 1080),  # - Full HD (16:9)
