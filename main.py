@@ -50,10 +50,11 @@ if __name__ == "__main__":
         hilo.start()
         thrdElevatros.append(hilo)
 
-    # personasPorCelda = {
+    # personasPorCelda = [
     #     (Xcoord, Ycoord): [personas] // en la celda (x, y), están tales personas 
-    # }
-    peoplePerCell = {}
+    # ]
+    maxPeople = 5
+    peoplePerCell = [[[] for _ in range(matrix["rows"])] for _ in range(matrix["columns"])]
     people = []
     thrdPeople = []
     for i in range(20):
@@ -88,9 +89,8 @@ if __name__ == "__main__":
         for lift in elevators:
             elevator.drawElevator(screen, lift, matrix["cellSize"], colors.RED, colors.GREEN)
 
-
         for user in people:
-            person.drawPerson(screen, user, matrix["cellSize"], peoplePerCell, user["color"])
+            person.drawPerson(screen, user, matrix["cellSize"], peoplePerCell, user["color"], maxPeople)
 
         pygame.display.flip()
         clock.tick(FRAME["FPS"])
