@@ -8,7 +8,7 @@ FRAME = {
         "HD+": (1600, 900),  # - HD+ (16:9)
         "FHD": (1920, 1080),  # - Full HD (16:9)
     },
-    "RESOLUTION": "HD+",  # Resolución seleccionada
+    "RESOLUTION": "QHD",  # Resolución seleccionada
     "FPS": 60,  # Tasa de refresco
     "TITLE": "Elevators",  # Título de la ventana
 }

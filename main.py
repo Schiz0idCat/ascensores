@@ -41,7 +41,8 @@ if __name__ == "__main__":
             column = i,
             currentFloor = 0,
             floors = tower["floors"],
-            targets = []
+            targets = [],
+            mutex = threading.Lock()
         )
         elevators.append(lift)
 

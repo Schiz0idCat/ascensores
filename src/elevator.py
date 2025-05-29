@@ -11,14 +11,15 @@ from config.settings import BUILDING, TXT
 #  - currentFloor (int): piso inicial donde se encuentra el elevator (respecto a las coordenadas de l edificio).
 #  - floors (int): número total de pisos del edificio.
 #  - targets (list): targets a los que debe ir el elevator
-def makeElevator(column, currentFloor, floors, targets):
+def makeElevator(column, currentFloor, floors, targets, mutex):
     return {
         "column": BUILDING["COORD"][0] + column,               # columna del edificio donde se ubica
         "currentFloor": BUILDING["COORD"][1] + currentFloor,   # piso actual
         "state": "stop",                                       # "up", "down" o "stop"
         "floors": floors,                                      # cantidad de pisos
         "targets": targets,                                    # lista de los pisos a los que va
-        "capacity": TXT["elevatorCapacity"]                    # capacidad máxima de personas
+        "capacity": TXT["elevatorCapacity"],                   # capacidad máxima de personas
+        "mutex": mutex 
     }
 
 
@@ -60,25 +61,23 @@ def drawElevator(screen, elevator, cellSize, color, colorDirection):
 #  - elevator (dict): diccionario que representa el elevator que va a mover.
 #  - delay (float): tiempo de espera entre movimientos, en segundos (por defecto 1s).
 def goto(elevator, delay=1):
-    while True:
-        elevator["targets"].sort()
-
+    while True: # Mantiene vivo el hilo
         time.sleep(delay)
 
         if len(elevator["targets"]) == 0:
-            elevator["state"] = "detenido"
-            time.sleep(delay)  # Espera un poco antes de revisar de nuevo
-            continue
-
-        destino = elevator["targets"][0]
-
-        if elevator["currentFloor"] < destino:
-            elevator["state"] = "up"
-            elevator["currentFloor"] += 1
-        elif elevator["currentFloor"] > destino:
-            elevator["state"] = "down"
-            elevator["currentFloor"] -= 1
-        else:
             elevator["state"] = "stop"
-            elevator["targets"].pop(0)
+        else:
+            target = elevator["targets"][0]
+
+            if elevator["currentFloor"] < target:
+                elevator["targets"].sort()
+                elevator["state"] = "up"
+                elevator["currentFloor"] += 1
+            elif elevator["currentFloor"] > target:
+                elevator["targets"].sort(reverse=True)
+                elevator["state"] = "down"
+                elevator["currentFloor"] -= 1
+            else:
+                elevator["state"] = "stop"
+                elevator["targets"].pop(0)
 
