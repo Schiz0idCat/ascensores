@@ -123,25 +123,27 @@ def removePersonFromCell(person, y, peoplePerCell):
 
 
 def goto(elevators, person, peoplePerCell, delay=1):
-    time.sleep(delay)
     elevator = random.choice(elevators)
+
+    elevator["mutex"].acquire()
 
     if len(elevator["targets"]) >= elevator["capacity"]:
         return
 
-    # bloquear array para todos los demás
+    elevator["mutex"].release()
+
+
+    elevator["mutex"].acquire()
+
     elevator["targets"].append(person["target"])
     person["elevator"] = elevator
     removePersonFromCell(person, person["currentFloor"], peoplePerCell)
-    # desbloquear array para todos los demás
     
-    # subirAlElevador()
+    elevator["mutex"].release()
 
     while person["currentFloor"] != person["target"]:
         person["currentFloor"] = elevator["currentFloor"]
         time.sleep(delay)
-
-    # bajarDelElevador()
 
     person["elevator"] = None
 
